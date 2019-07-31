@@ -36,6 +36,7 @@ main = do
             let colorDeclarations = generateColorsDeclarations $ colorsL
             let opacityDeclarations = generateOpaClasses $ opacity obj
             let dt = filter notNull [genColorVarDeclarations colorsL]
+            let bgRules = generateBgRules colorsL
             let colorDecs = genRootRule dt
             putStrLn $ T.unpack colorDecs
-            writeCssChunks [colorDecs, colorDeclarations, opacityDeclarations] "./test.css"
+            writeCssChunks [colorDecs, bgRules, colorDeclarations, opacityDeclarations] "./test.css"

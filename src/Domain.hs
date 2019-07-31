@@ -31,12 +31,30 @@ generateOpaClasses =
         _ -> acc <> (T.pack "\n\n") <> (createOpaClass x)) 
         (T.pack "")
 
+processColorData :: [(T.Text, Value)] -> [Color]
 processColorData x =  map (\v -> (fst v, unwrap $ snd $ v)) x
 
+parseColors :: Config -> [Color]
 parseColors = processColorData . toList . colors 
 
 createCSSVarDeclration :: (T.Text, T.Text) -> T.Text
 createCSSVarDeclration (name, value) = "  --" <> name <> ": " <> value <> ";"
+
+generateBgRule :: Bg -> T.Text
+generateBgRule (name, _) = ".bg-" <> name <> " {\n" <> decInd <> "background-color: " <> (varName name) <> ";\n}"
+
+type Color = (T.Text, T.Text)
+type Bg = (T.Text, T.Text)
+
+decInd = "  "
+
+generateBgRules :: [Bg] -> T.Text
+generateBgRules xs = foldl (\acc x -> case acc of
+    "" -> acc <> (generateBgRule x)
+    _ -> acc <> "\n\n" <> (generateBgRule x)
+    ) 
+    ""
+    xs
 
 genColorVarDeclaration = createCSSVarDeclration
 

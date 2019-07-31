@@ -3,6 +3,14 @@
   --black: #000;
 }
 
+.bg-white {
+  background-color: var(--white);
+}
+
+.bg-black {
+  background-color: var(--black);
+}
+
 .white {
   color: var(--white);
 }
