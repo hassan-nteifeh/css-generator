@@ -7,7 +7,7 @@ import GHC.Exts    -- (fromList)
 import Data.Typeable
 import Data.Aeson (encode, eitherDecode)
 import Data.Aeson.Types
-import Domain (Config, generateOpaClasses, opacity, colors, processColorData, generateColorsDeclarations)
+import Domain
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
 import qualified Data.Text.Encoding as T
@@ -24,16 +24,18 @@ constructCssChunks xs = foldl (\acc v -> case acc of
     (T.pack (""))
     xs
 
+notNull x = not (T.null x)
+
 main :: IO ()
 main = do
     d <- eitherDecode <$> (Lz.readFile "./config.json") :: IO (Either String Config)
     case d of
         Left err -> fail err
-        Right ps -> do
-            let colorDeclarations = generateColorsDeclarations $ processColorData $ toList $ colors ps
-            let opacityDeclarations = generateOpaClasses $ opacity ps
-            putStrLn $ show $ T.length colorDeclarations
-            putStrLn $ show $ typeOf opacityDeclarations
-            writeCssChunks [colorDeclarations, opacityDeclarations] "./test.css"
-            putStrLn $ T.unpack $ constructCssChunks [colorDeclarations, opacityDeclarations]
-            putStrLn "Meh"
+        Right obj -> do
+            let colorsL = parseColors obj
+            let colorDeclarations = generateColorsDeclarations $ colorsL
+            let opacityDeclarations = generateOpaClasses $ opacity obj
+            let dt = filter notNull [genColorVarDeclarations colorsL]
+            let colorDecs = genRootRule dt
+            putStrLn $ T.unpack colorDecs
+            writeCssChunks [colorDecs, colorDeclarations, opacityDeclarations] "./test.css"

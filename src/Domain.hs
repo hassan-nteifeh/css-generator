@@ -33,11 +33,34 @@ generateOpaClasses =
 
 processColorData x =  map (\v -> (fst v, unwrap $ snd $ v)) x
 
+parseColors = processColorData . toList . colors 
+
+createCSSVarDeclration :: (T.Text, T.Text) -> T.Text
+createCSSVarDeclration (name, value) = "  --" <> name <> ": " <> value <> ";"
+
+genColorVarDeclaration = createCSSVarDeclration
+
+genColorVarDeclarations :: [(T.Text, T.Text)] -> T.Text
+genColorVarDeclarations [] = ""
+genColorVarDeclarations xs = foldl (\acc v -> 
+    case acc of
+    "" -> genColorVarDeclaration v
+    _ -> acc <> "\n" <> genColorVarDeclaration v
+    ) "" xs
+
+genRootRule :: [T.Text] -> T.Text
+genRootRule [] = ""
+genRootRule declarations = ":root {\n" <> (foldl (\acc v ->  acc <> v) "" declarations) <> "\n}"
+
+varName :: T.Text -> T.Text
+varName x = "var(--" <> x <> ")"
+
 generateColorsDeclarations :: [(T.Text, T.Text)] -> T.Text
-generateColorsDeclarations ls = foldl (\ acc val -> case val of 
-    (a, b) -> case acc of
-        "" -> acc <> "." <> a <> " {\n" <> "  color: " <> b <> ";\n}"
-        _ -> acc <> "\n\n." <> a <> " {\n" <> "  color: " <> b <> ";\n}"
+generateColorsDeclarations ls = foldl (\ acc val -> 
+    case val of 
+        (a, _) -> case acc of
+            "" -> acc <> "." <> a <> " {\n" <> "  color: " <> (varName a) <> ";\n}"
+            _ -> acc <> "\n\n." <> a <> " {\n" <> "  color: " <> (varName a) <> ";\n}"
     ) 
     ("" :: T.Text) 
     ls

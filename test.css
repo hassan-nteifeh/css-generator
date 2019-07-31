@@ -1,9 +1,14 @@
+:root {
+  --white: #fff;
+  --black: #000;
+}
+
 .white {
-  color: #fff;
+  color: var(--white);
 }
 
 .black {
-  color: #000;
+  color: var(--black);
 }
 
 .o-100 {
