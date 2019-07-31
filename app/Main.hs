@@ -14,13 +14,21 @@ import qualified Data.Text.Encoding as T
 import qualified Data.HashMap.Strict as HM
 
 
+writeCssChunks :: [T.Text] -> String -> IO ()
+writeCssChunks xs path = T.writeFile path $ constructCssChunks xs
+
+constructCssChunks xs = foldl (\acc v -> acc <> (T.pack "\n\n") <> v) (T.pack ("")) xs
+
 main :: IO ()
 main = do
     d <- eitherDecode <$> (Lz.readFile "./config.json") :: IO (Either String Config)
-    putStrLn $ showFullPrecision (0.0005 :: Float)
     case d of
-        Left err -> putStrLn err
+        Left err -> fail err
         Right ps -> do
-            putStrLn $ show $ length $ toList $ colors ps
-            --T.writeFile "test.css" $ generateColorsDeclarations $ processColorData $ toList $ colors ps
-            T.writeFile "test.css"  $ T.pack $ generateOpaClasses $ opacity ps
+            let colorDeclarations = generateColorsDeclarations $ processColorData $ toList $ colors ps
+            let opacityDeclarations = generateOpaClasses $ opacity ps
+            putStrLn $ show $ T.length colorDeclarations
+            putStrLn $ show $ typeOf opacityDeclarations
+            writeCssChunks [colorDeclarations, opacityDeclarations] "./test.css"
+            putStrLn $ T.unpack $ constructCssChunks [colorDeclarations, opacityDeclarations]
+            putStrLn "Meh"

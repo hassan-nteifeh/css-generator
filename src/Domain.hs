@@ -17,25 +17,27 @@ unwrap (String val) = val
 showFullPrecision :: Float -> String
 showFullPrecision x = showFFloat Nothing x ""
 
-createOpaClass :: Float -> [Char]
+createOpaClass :: Float -> T.Text
 createOpaClass x = case x of
-    0.0 -> ".o-0 {\n" ++ "opacity: " ++ showFullPrecision x ++ ";\n}"
-    1.0 -> ".o-100 {\n" ++ "opacity: " ++ showFullPrecision x ++ ";\n}"
-    _ -> let name = filter (\c -> c /= '.') $ "o-" ++ (showFullPrecision (x * 10))
-      in "." ++ name ++ "{\n" ++ "opacity: " ++ showFullPrecision x ++ ";\n}"
+    0.0 -> T.pack $ ".o-0 {\n" ++ "opacity: " ++ showFullPrecision x ++ ";\n}"
+    1.0 -> T.pack $ ".o-100 {\n" ++ "opacity: " ++ showFullPrecision x ++ ";\n}"
+    _ -> let name = (filter (\c -> c /= '.') $ "o-" ++ (showFullPrecision (x * 10)))
+      in T.pack $ "." ++ name ++ "{\n" ++ "opacity: " ++ showFullPrecision x ++ ";\n}"
 
-generateOpaClasses :: [Float] -> [Char] 
+generateOpaClasses :: [Float] -> T.Text 
 generateOpaClasses = 
     foldl (\acc x -> case acc of
-        "" -> acc ++ (createOpaClass x)
-        _ -> acc ++ ("\n\n") ++ (createOpaClass x)) 
-        ""
+        "" -> acc <> (createOpaClass x)
+        _ -> acc <> (T.pack "\n\n") <> (createOpaClass x)) 
+        (T.pack "")
 
 processColorData x =  map (\v -> (fst v, unwrap $ snd $ v)) x
 
 generateColorsDeclarations :: [(T.Text, T.Text)] -> T.Text
 generateColorsDeclarations ls = foldl (\ acc val -> case val of 
-    (a, b) -> acc <> "\n\n." <> a <> "{\n" <> "\tcolor: " <> b <> ";\n}"
+    (a, b) -> case acc of
+        "" -> acc <> "." <> a <> " {\n" <> "\tcolor: " <> b <> ";\n}"
+        _ -> acc <> "\n\n." <> a <> " {\n" <> "\tcolor: " <> b <> ";\n}"
     ) 
     ("" :: T.Text) 
     ls
