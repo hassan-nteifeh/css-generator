@@ -17,7 +17,12 @@ import qualified Data.HashMap.Strict as HM
 writeCssChunks :: [T.Text] -> String -> IO ()
 writeCssChunks xs path = T.writeFile path $ constructCssChunks xs
 
-constructCssChunks xs = foldl (\acc v -> acc <> (T.pack "\n\n") <> v) (T.pack ("")) xs
+constructCssChunks xs = foldl (\acc v -> case acc of
+    "" -> acc <> v
+    _ -> acc <> (T.pack "\n\n") <> v
+    ) 
+    (T.pack (""))
+    xs
 
 main :: IO ()
 main = do
