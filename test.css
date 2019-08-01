@@ -74,3 +74,19 @@
 .b--black {
   border-color: var(--black);
 }
+
+.bw0 {
+  border-width: 1rem;
+}
+
+.bw1 {
+  border-width: 2rem;
+}
+
+.bw2 {
+  border-width: 2.5rem;
+}
+
+.bw3 {
+  border-width: 3rem;
+}

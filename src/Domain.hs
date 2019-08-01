@@ -85,17 +85,20 @@ generateColorsDeclarations ls = foldl (\ acc val ->
     
 data Config = Config {
     opacity :: [Float],
+    borderWidths :: [Float],
     colors :: Object
 } deriving (Show)
 
 instance FromJSON Config where
     parseJSON = withObject "Config" $ \o -> do
         op <- o .: "opacity"
+        bw <- o .: "borderWidths"
         cs <- o .: "colors"
-        return $ Config op cs
+        return $ Config op bw cs
 
 instance ToJSON Config where
   toJSON config = object
     [ "opacity" .= toJSON (opacity config)
+    , "borderWidths" .= toJSON (borderWidths config)
     , "colors" .= toJSON (colors config)
     ]
