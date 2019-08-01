@@ -7,8 +7,11 @@ import GHC.Exts    -- (fromList)
 import Data.Typeable
 import Data.Aeson (encode, eitherDecode)
 import Data.Aeson.Types
-import Domain
+import Parser
 import Border
+import Variables (genRootRule, genColorVarDeclarations)
+import Opacity (genOpacityRules)
+import Colors (genColorDeclararions)
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
 import qualified Data.Text.Encoding as T
@@ -34,11 +37,17 @@ main = do
         Left err -> fail err
         Right obj -> do
             let colorsL = parseColors obj
-            let colorDeclarations = generateColorsDeclarations $ colorsL
-            let opacityDeclarations = generateOpaClasses $ opacity obj
+            let colorDeclarations = genColorDeclararions $ colorsL
+            let opacityDeclarations = genOpacityRules $ opacity obj
             let dt = filter notNull [genColorVarDeclarations colorsL]
             let bgRules = generateBgRules colorsL
             let colorDecs = genRootRule dt
             let brClrDecs = genBrClrRules colorsL
             let bw = genBWRules $ borderWidths obj
-            writeCssChunks [colorDecs, bgRules, colorDeclarations, opacityDeclarations, brClrDecs, bw] "./test.css"
+            writeCssChunks [
+                  colorDecs
+                , bgRules
+                , colorDeclarations
+                , opacityDeclarations
+                , brClrDecs, bw
+                ] "./test.css"
