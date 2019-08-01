@@ -66,3 +66,11 @@
 .o-0 {
   opacity: 0.0;
 }
+
+.b--white {
+  border-color: var(--white);
+}
+
+.b--black {
+  border-color: var(--black);
+}

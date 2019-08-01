@@ -8,6 +8,7 @@ import Data.Typeable
 import Data.Aeson (encode, eitherDecode)
 import Data.Aeson.Types
 import Domain
+import Border
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
 import qualified Data.Text.Encoding as T
@@ -38,5 +39,5 @@ main = do
             let dt = filter notNull [genColorVarDeclarations colorsL]
             let bgRules = generateBgRules colorsL
             let colorDecs = genRootRule dt
-            putStrLn $ T.unpack colorDecs
-            writeCssChunks [colorDecs, bgRules, colorDeclarations, opacityDeclarations] "./test.css"
+            let brClrDecs = genBrClrRules colorsL
+            writeCssChunks [colorDecs, bgRules, colorDeclarations, opacityDeclarations, brClrDecs] "./test.css"
