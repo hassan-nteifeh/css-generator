@@ -40,6 +40,5 @@ main = do
             let bgRules = generateBgRules colorsL
             let colorDecs = genRootRule dt
             let brClrDecs = genBrClrRules colorsL
-            let bw = genBWRules [1.0, 2.0, 2.5, 3.0]
-            putStrLn $ show $ borderWidths obj
+            let bw = genBWRules $ borderWidths obj
             writeCssChunks [colorDecs, bgRules, colorDeclarations, opacityDeclarations, brClrDecs, bw] "./test.css"
