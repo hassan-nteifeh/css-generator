@@ -36,6 +36,7 @@ main = do
     case d of
         Left err -> fail err
         Right obj -> do
+            let bps = breakpoints obj
             let colorsL = parseColors obj
             let colorDeclarations = genColorDeclararions $ colorsL
             let opacityDeclarations = genOpacityRules $ opacity obj
@@ -43,11 +44,12 @@ main = do
             let bgRules = generateBgRules colorsL
             let colorDecs = genRootRule dt
             let brClrDecs = genBrClrRules colorsL
-            let bw = genBWRules $ borderWidths obj
+            let bw = genBWRules (borderWidths obj) bps
             writeCssChunks [
                   colorDecs
                 , bgRules
                 , colorDeclarations
                 , opacityDeclarations
-                , brClrDecs, bw
+                , brClrDecs, 
+                bw
                 ] "./test.css"

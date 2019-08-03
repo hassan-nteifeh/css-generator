@@ -16,3 +16,6 @@ varName x = "var(--" <> x <> ")"
 
 unwrap :: Value -> T.Text
 unwrap (String val) = val
+
+unwrapInt :: Value -> Int
+unwrapInt (Number val) = round (val) :: Int

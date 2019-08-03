@@ -38,13 +38,6 @@ genBrClrRule (name, _) =
   <> "border-color: " 
   <> (varName name) <> ";\n}"
 
-genBWRule :: Int -> Float -> T.Text
-genBWRule l n = 
-  ".bw" <> (showInt l)
-  <> " {\n" <> decInd 
-  <> "border-width: " 
-  <> (showFloat n) <> "rem;\n}"
-
 genBrClrRules :: [Color] -> T.Text
 genBrClrRules xs = foldl (\acc x -> case acc of
     "" -> acc <> (genBrClrRule x)
@@ -56,13 +49,49 @@ genBrClrRules xs = foldl (\acc x -> case acc of
 
 elemIndex' x xs = unwrap $ elemIndex x xs 
 
-genBWRules :: [Float] -> T.Text
-genBWRules xs = foldl (\acc x -> 
-    let idx =  elemIndex' x xs 
-        isLast = elemIndex' x xs == length xs - 1 
-        in case acc of
-            "" -> acc <> (genBWRule idx x)
-            _ -> acc <> "\n\n" <> (genBWRule idx x)
-        ) 
+createBPStartBlock :: Breakpoint -> T.Text
+createBPStartBlock (_, b, Just c) = "@media (min-width: " <> (T.pack $ show b) <> "em) and (max-width: calc(" <> (T.pack $ show c) <> "em - 1px)) {"
+createBPStartBlock (_, b, Nothing) = "@media (min-width: " <> (T.pack $ show b) <> "em) {"
+
+fst' (a, b, c) = a
+
+genBWRule :: Int -> Float -> T.Text -> T.Text
+genBWRule l n t = 
+    case t of 
+        "" -> ".bw" <> (showInt l) 
+              <> " {\n" <> decInd 
+              <> "border-width: " 
+              <> (showFloat n) <> "rem;\n}"
+        _ -> ".bw" <> (showInt l) <> "-" <> t
+             <> " {\n" <> decInd 
+             <> "border-width: " 
+             <> (showFloat n) <> "rem;\n}"
+
+genBPRule ::  [Float] -> Breakpoint -> T.Text
+genBPRule xs bp = 
+    let startBlock = createBPStartBlock bp
+        rules = foldl (\acc x -> 
+            let idx =  elemIndex' x xs
+            in acc <> "\n\n" <> genBWRule idx x (fst' bp)
+            ) 
+            ""
+            xs 
+    in startBlock <> rules <> "\n\n}"
+
+genBWBPRules :: [Float] -> [Breakpoint] -> T.Text
+genBWBPRules xs bps = foldl (\acc bp -> 
+    acc <> (genBPRule xs bp) <> "\n\n\n"
+    ) 
+    ""
+    bps
+
+genBWRulesNoBP ::  [Float] -> T.Text
+genBWRulesNoBP xs = foldl (\acc x -> 
+    let idx =  elemIndex' x xs
+    in acc <> "\n\n" <> genBWRule idx x ""
+    ) 
     ""
     xs
+
+genBWRules :: [Float] -> [Breakpoint] -> T.Text
+genBWRules xs bps = genBWRulesNoBP xs <> "\n\n" <> genBWBPRules xs bps
