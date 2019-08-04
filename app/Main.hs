@@ -52,4 +52,4 @@ main = do
                 , opacityDeclarations
                 , brClrDecs, 
                 bw
-                ] "./test.css"
+                ] "./dist/main.css"

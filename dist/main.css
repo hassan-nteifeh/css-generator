@@ -129,7 +129,8 @@
 
 }
 
-@media (min-width: 62em) {
+
+@media (min-width: 62em) and (max-width: calc(72em - 1px)) {
 
 .bw0-m {
   border-width: 0rem;
@@ -152,6 +153,35 @@
 }
 
 .bw5-m {
+  border-width: 2rem;
+}
+
+}
+
+
+@media (min-width: 72em) {
+
+.bw0-l {
+  border-width: 0rem;
+}
+
+.bw1-l {
+  border-width: 0.125rem;
+}
+
+.bw2-l {
+  border-width: 0.25rem;
+}
+
+.bw3-l {
+  border-width: 0.5rem;
+}
+
+.bw4-l {
+  border-width: 1rem;
+}
+
+.bw5-l {
   border-width: 2rem;
 }
 
