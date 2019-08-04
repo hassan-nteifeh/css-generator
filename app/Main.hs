@@ -44,12 +44,12 @@ main = do
             let bgRules = generateBgRules colorsL
             let colorDecs = genRootRule dt
             let brClrDecs = genBrClrRules colorsL
-            let bw = genBWRules (borderWidths obj) bps
+            let bw = genBWCSS (borderWidths obj) bps
             writeCssChunks [
                   colorDecs
                 , bgRules
                 , colorDeclarations
                 , opacityDeclarations
-                , brClrDecs, 
-                bw
+                , brClrDecs
+                , bw
                 ] "./dist/main.css"

@@ -31,26 +31,26 @@ generateBgRules xs = foldl (\acc x -> case acc of
     ""
     xs
 
-buildBreakpoint :: (T.Text, Value) -> [(T.Text, Value)] -> Breakpoint
+buildBreakpoint :: (T.Text, Value) -> [(T.Text, Value)] -> Maybe Breakpoint
 buildBreakpoint (a, b) xs = 
     let bp = unwrapInt b
         maxIdx = length xs - 1
         idx = fromJust $ elemIndex (a, b) xs
         isLast = idx == maxIdx
-    in if isLast then (a, bp, Nothing)
-    else (a, bp, Just (unwrapInt $ snd $ xs !! (idx + 1) )) 
+    in if isLast then Just (a, bp, Nothing)
+    else Just (a, bp, Just (unwrapInt $ snd $ xs !! (idx + 1) )) 
 
 
-parseBreakpoints :: [Object] -> [Breakpoint]
+parseBreakpoints :: [Object] -> [Maybe Breakpoint]
 parseBreakpoints xs =  
     let bps = concat $ map toList xs 
-    in map (\bp -> buildBreakpoint bp bps) bps
+    in Nothing:(map (\bp -> buildBreakpoint bp bps) bps)
 
 data Config = Config {
     opacity :: [Float],
     borderWidths :: [Float],
     colors :: Object,
-    breakpoints :: [Breakpoint]
+    breakpoints :: [Maybe Breakpoint]
 } deriving (Show)
 
 instance FromJSON Config where

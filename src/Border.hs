@@ -49,49 +49,81 @@ genBrClrRules xs = foldl (\acc x -> case acc of
 
 elemIndex' x xs = unwrap $ elemIndex x xs 
 
-createBPStartBlock :: Breakpoint -> T.Text
-createBPStartBlock (_, b, Just c) = "@media (min-width: " <> (T.pack $ show b) <> "em) and (max-width: calc(" <> (T.pack $ show c) <> "em - 1px)) {"
-createBPStartBlock (_, b, Nothing) = "@media (min-width: " <> (T.pack $ show b) <> "em) {"
+createBPBlockStart :: Maybe Breakpoint -> T.Text
+createBPBlockStart Nothing = "" 
+createBPBlockStart (Just (_, b, Just c)) = "@media (min-width: " <> (T.pack $ show b) <> "em) and (max-width: calc(" <> (T.pack $ show c) <> "em - 1px)) {"
+createBPBlockStart (Just (_, b, Nothing)) = "@media (min-width: " <> (T.pack $ show b) <> "em) {"
+
+createBPBlockEnd :: Maybe Breakpoint -> T.Text
+createBPBlockEnd Nothing = ""
+createBPBlockEnd _ = "\n\n}\n\n"
 
 fst' (a, b, c) = a
 
-genBWRule :: Int -> Float -> T.Text -> T.Text
-genBWRule l n t = 
-    case t of 
-        "" -> ".bw" <> (showInt l) 
+data Side = TopSide | RightSide | BottomSide | LeftSide
+
+getBPSuffix :: Maybe Breakpoint  -> T.Text
+getBPSuffix x = case x of
+    Nothing -> ""
+    Just (a, _, _) -> "-" <> a
+
+genBWClassName :: Int -> Maybe Breakpoint -> Maybe Side -> T.Text
+genBWClassName x y z = case z of
+    Nothing -> ".bw" <> (showInt x) <> (getBPSuffix y)
+    (Just TopSide) -> ".bt-" <> (showInt x) <> (getBPSuffix y)
+    (Just RightSide) -> ".br-" <> (showInt x) <> (getBPSuffix y)
+    (Just BottomSide) -> ".bb-" <> (showInt x) <> (getBPSuffix y)
+    (Just LeftSide) -> ".bl-" <> (showInt x) <> (getBPSuffix y)
+
+genBWDeclaration :: Float -> Maybe Side -> T.Text
+genBWDeclaration x y = case y of
+    Nothing ->  "border-width: " <> (showFloat x) <> "rem;\n}"
+    (Just TopSide) ->  "border-top-width: " <> (showFloat x) <> "rem;\n}"
+    (Just RightSide) ->  "border-right-width: " <> (showFloat x) <> "rem;\n}"
+    (Just BottomSide) ->  "border-bottom-width: " <> (showFloat x) <> "rem;\n}"
+    (Just LeftSide) ->  "border-left-width: " <> (showFloat x) <> "rem;\n}"
+
+genBWRule :: (Int, Float, Maybe Breakpoint, Maybe Side) -> T.Text
+genBWRule (a, b, c, d) =  genBWClassName a c d
               <> " {\n" <> decInd 
-              <> "border-width: " 
-              <> (showFloat n) <> "rem;\n}"
-        _ -> ".bw" <> (showInt l) <> "-" <> t
-             <> " {\n" <> decInd 
-             <> "border-width: " 
-             <> (showFloat n) <> "rem;\n}"
+              <> (genBWDeclaration b d)
 
-genBPRule ::  [Float] -> Breakpoint -> T.Text
-genBPRule xs bp = 
-    let startBlock = createBPStartBlock bp
-        rules = foldl (\acc x -> 
-            let idx =  elemIndex' x xs
-            in acc <> "\n\n" <> genBWRule idx x (fst' bp)
-            ) 
-            ""
-            xs 
-    in startBlock <> rules <> "\n\n}"
 
-genBWBPRules :: [Float] -> [Breakpoint] -> T.Text
-genBWBPRules xs bps = foldl (\acc bp -> 
-    acc <> (genBPRule xs bp) <> "\n\n\n"
-    ) 
-    ""
-    bps
+{-
+  Breakpint 
+    Side 1 rules
+     - width1
+     - width2
+     - width3
+     - etc
+    Side 2 rules
+-}
 
-genBWRulesNoBP ::  [Float] -> T.Text
-genBWRulesNoBP xs = foldl (\acc x -> 
-    let idx =  elemIndex' x xs
-    in acc <> "\n\n" <> genBWRule idx x ""
-    ) 
-    ""
-    xs
+genBWSideRules :: [Float] -> Maybe Breakpoint -> Maybe Side -> T.Text
+genBWSideRules xs bp s = foldl (\acc x -> 
+        let l = elemIndex' x xs
+        in acc <> "\n\n" <> (genBWRule (l, x, bp, s))
+        ) 
+        ""
+        xs
 
-genBWRules :: [Float] -> [Breakpoint] -> T.Text
-genBWRules xs bps = genBWRulesNoBP xs <> "\n\n" <> genBWBPRules xs bps
+getBWSidesRules :: [Float] -> Maybe Breakpoint -> T.Text
+getBWSidesRules xs bp = 
+    let sides = [Nothing, Just TopSide, Just RightSide, Just BottomSide, Just LeftSide]
+    in foldl (\acc s -> acc <> "\n" <> (genBWSideRules xs bp s)) 
+        ""
+        sides
+
+genBWBreakpointCss :: [Float] -> Maybe Breakpoint -> T.Text
+genBWBreakpointCss ws bp = 
+        let startBlock = createBPBlockStart bp
+            endBlock   = createBPBlockEnd bp
+        in startBlock 
+        <> (getBWSidesRules ws bp)
+        <> endBlock
+
+genBWCSS ::  [Float] -> [Maybe Breakpoint] -> T.Text
+genBWCSS xs bps = foldl (\acc bp -> acc <> (genBWBreakpointCss xs bp)) "" bps
+
+--genCss :: [Float] -> [Maybe Breakpoint] -> T.Text
+--genCss xs bps = foldl (\acc bp -> acc <> "\n\n" <> (genBWCSS xs bp)) "" bps
