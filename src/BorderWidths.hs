@@ -1,11 +1,12 @@
 {-# LANGUAGE DeriveGeneric,  OverloadedStrings #-}
 
-module Border where
+module BorderWidths where
 
 import qualified Data.Text as T
 import Numeric (showFFloat)
 import Types
 import Data.List
+import Utility (decInd)
 
 
 isInt :: (RealFrac a) => a -> Bool
@@ -25,27 +26,6 @@ showInt x = T.pack $ show x
 showFloat :: Float -> T.Text
 showFloat x | validInt x = T.pack $ show $ round x
             | otherwise =  showFullPrecision x
-
-decInd = "  "
-
-varName :: T.Text -> T.Text
-varName x = "var(--" <> x <> ")"
-
-genBrClrRule :: Color -> T.Text
-genBrClrRule (name, _) = 
-  ".b--" <> name
-  <> " {\n" <> decInd 
-  <> "border-color: " 
-  <> (varName name) <> ";\n}"
-
-genBrClrRules :: [Color] -> T.Text
-genBrClrRules xs = foldl (\acc x -> case acc of
-    "" -> acc <> (genBrClrRule x)
-    _ -> acc <> "\n\n" <> (genBrClrRule x)
-    ) 
-    ""
-    xs
-
 
 elemIndex' x xs = unwrap $ elemIndex x xs 
 
@@ -88,31 +68,17 @@ genBWRule (a, b, c, d) =  genBWClassName a c d
               <> " {\n" <> decInd 
               <> (genBWDeclaration b d)
 
-
-{-
-  Breakpint 
-    Side 1 rules
-     - width1
-     - width2
-     - width3
-     - etc
-    Side 2 rules
--}
-
 genBWSideRules :: [Float] -> Maybe Breakpoint -> Maybe Side -> T.Text
 genBWSideRules xs bp s = foldl (\acc x -> 
         let l = elemIndex' x xs
-        in acc <> "\n\n" <> (genBWRule (l, x, bp, s))
-        ) 
+        in acc <> "\n\n" <> (genBWRule (l, x, bp, s))) 
         ""
         xs
 
 getBWSidesRules :: [Float] -> Maybe Breakpoint -> T.Text
 getBWSidesRules xs bp = 
     let sides = [Nothing, Just TopSide, Just RightSide, Just BottomSide, Just LeftSide]
-    in foldl (\acc s -> acc <> "\n" <> (genBWSideRules xs bp s)) 
-        ""
-        sides
+    in foldl (\acc s -> acc <> "\n" <> (genBWSideRules xs bp s)) "" sides
 
 genBWBreakpointCss :: [Float] -> Maybe Breakpoint -> T.Text
 genBWBreakpointCss ws bp = 
@@ -123,7 +89,4 @@ genBWBreakpointCss ws bp =
         <> endBlock
 
 genBWCSS ::  [Float] -> [Maybe Breakpoint] -> T.Text
-genBWCSS xs bps = foldl (\acc bp -> acc <> (genBWBreakpointCss xs bp)) "" bps
-
---genCss :: [Float] -> [Maybe Breakpoint] -> T.Text
---genCss xs bps = foldl (\acc bp -> acc <> "\n\n" <> (genBWCSS xs bp)) "" bps
+genBWCSS xs = foldl (\acc bp -> acc <> (genBWBreakpointCss xs bp)) ""

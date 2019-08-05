@@ -8,6 +8,9 @@ import Data.Aeson.Types
 
 decInd = "  " :: T.Text
 
+lb = "\n" :: T.Text
+lb2 = lb <> lb
+
 showFullPrecision :: Float -> String
 showFullPrecision x = showFFloat Nothing x ""
 

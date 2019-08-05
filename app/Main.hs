@@ -8,8 +8,10 @@ import Data.Typeable
 import Data.Aeson (encode, eitherDecode)
 import Data.Aeson.Types
 import Parser
-import Border
+import BorderStyles (genBrStyleRule,  genBorderStylesCss)
 import Variables (genRootRule, genColorVarDeclarations)
+import BorderWidths (genBWCSS)
+import BorderColors (genBrClrRules)
 import Opacity (genOpacityRules)
 import Colors (genColorDeclararions)
 import qualified Data.Text as T
