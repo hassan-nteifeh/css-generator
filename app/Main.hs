@@ -11,10 +11,10 @@ import Parser
 import Utility (createBPBlockStart, createBPBlockEnd)
 import BorderStyles (genBrStyleRule,  genBorderStylesCss)
 import Variables (genRootRule, genColorVarDeclarations)
-import BorderWidths (genBWCSS)
-import BorderColors (genBrClrRules)
-import Opacity (genOpacityRules)
-import Colors (genColorDeclararions)
+import BorderWidths (genBorderWidthsCss)
+import BorderColors (genBorderColorsCss)
+import Opacity (genOpacityCss)
+import Colors (genColorsCss)
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
 import qualified Data.Text.Encoding as T
@@ -40,11 +40,19 @@ main = do
         Left err -> fail err
         Right obj -> do
             let bps = breakpoints obj
+            let bws = borderWidths obj
+            let clrs = colors obj
+            let opacityCss= genOpacityCss $ opacity obj
+            let regcss = genColorsCss clrs
             let bpcss = foldl (\acc bp -> acc 
-                        <> "\n\n"
+                        <> (if (T.null acc) then "" else "\n")
                         <> (createBPBlockStart bp)
                         <> (genBorderStylesCss bp)
+                        <> "\n\n"
+                        <> (genBorderColorsCss clrs)
+                        <> (genBorderWidthsCss bws bp)
                         <> (createBPBlockEnd bp))
                         "" 
                         bps
             putStrLn $ T.unpack bpcss
+            writeCssChunks [regcss, opacityCss, bpcss] "./dist/main.css"

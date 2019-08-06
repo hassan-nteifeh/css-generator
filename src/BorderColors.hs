@@ -16,8 +16,8 @@ genBrClrRule (name, _) =
   <> "border-color: " 
   <> (varName name) <> ";\n}"
 
-genBrClrRules :: [Color] -> T.Text
-genBrClrRules xs = foldl (\acc x -> case acc of
+genBorderColorsCss :: [Color] -> T.Text
+genBorderColorsCss xs = foldl (\acc x -> case acc of
     "" -> acc <> (genBrClrRule x)
     _ -> acc <> "\n\n" <> (genBrClrRule x)
     ) 

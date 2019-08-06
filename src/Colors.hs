@@ -4,9 +4,10 @@ module Colors where
 
 import qualified Data.Text as T
 import Utility (varName)
+import Types (Color)
 
-genColorDeclararions :: [(T.Text, T.Text)] -> T.Text
-genColorDeclararions ls = foldl (\ acc val -> 
+genColorsCss :: [Color] -> T.Text
+genColorsCss ls = foldl (\ acc val -> 
     case val of 
         (a, _) -> case acc of
             "" -> acc <> "." <> a <> " {\n" <> "  color: " <> (varName a) <> ";\n}"

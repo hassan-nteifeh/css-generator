@@ -12,8 +12,8 @@ genOpacityRule x = case x of
     _ -> let name = (filter (\c -> c /= '.') $ "o-" <> (showFullPrecision (x * 10)))
       in T.pack $ "." <> name <> " {\n" <> "  opacity: " <> showFullPrecision x <> ";\n}"
 
-genOpacityRules :: [Float] -> T.Text 
-genOpacityRules = 
+genOpacityCss :: [Float] -> T.Text 
+genOpacityCss = 
     foldl (\acc x -> case acc of
         "" -> acc <> (genOpacityRule x)
         _ -> acc <> "\n\n" <> (genOpacityRule x)) 

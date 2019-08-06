@@ -75,18 +75,9 @@ genBWSideRules xs bp s = foldl (\acc x ->
         ""
         xs
 
-getBWSidesRules :: [Float] -> Maybe Breakpoint -> T.Text
-getBWSidesRules xs bp = 
+genBorderWidthsCss :: [Float] -> Maybe Breakpoint -> T.Text
+genBorderWidthsCss xs bp = 
     let sides = [Nothing, Just TopSide, Just RightSide, Just BottomSide, Just LeftSide]
     in foldl (\acc s -> acc <> "\n" <> (genBWSideRules xs bp s)) "" sides
+    
 
-genBWBreakpointCss :: [Float] -> Maybe Breakpoint -> T.Text
-genBWBreakpointCss ws bp = 
-        let startBlock = createBPBlockStart bp
-            endBlock   = createBPBlockEnd bp
-        in startBlock 
-        <> (getBWSidesRules ws bp)
-        <> endBlock
-
-genBWCSS ::  [Float] -> [Maybe Breakpoint] -> T.Text
-genBWCSS xs = foldl (\acc bp -> acc <> (genBWBreakpointCss xs bp)) ""
