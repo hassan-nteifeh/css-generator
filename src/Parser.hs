@@ -17,8 +17,8 @@ import Types (Color, Bg, Breakpoint)
 processColorData :: [(T.Text, Value)] -> [Color]
 processColorData x =  map (\v -> (fst v, unwrap $ snd $ v)) x
 
-parseColors :: Config -> [Color]
-parseColors = processColorData . toList . colors 
+parseColors :: Object -> [Color]
+parseColors = processColorData . toList
 
 generateBgRule :: Bg -> T.Text
 generateBgRule (name, _) = ".bg-" <> name <> " {\n" <> decInd <> "background-color: " <> (varName name) <> ";\n}"
@@ -49,7 +49,7 @@ parseBreakpoints xs =
 data Config = Config {
     opacity :: [Float],
     borderWidths :: [Float],
-    colors :: Object,
+    colors :: [Color] ,
     breakpoints :: [Maybe Breakpoint]
 } deriving (Show)
 
@@ -58,8 +58,8 @@ instance FromJSON Config where
         op <- o .: "opacity"
         bw <- o .: "borderWidths"
         cs <- o .: "colors"
-        bps <- o .: "breakpoints" -- [Object]
-        return $ Config op bw cs (parseBreakpoints bps)
+        bps <- o .: "breakpoints"
+        return $ Config op bw (parseColors cs) (parseBreakpoints bps)
 
 instance ToJSON Config where
   toJSON config = object

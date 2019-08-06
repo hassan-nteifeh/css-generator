@@ -31,7 +31,7 @@ genBrStyleRule style bp =
   <> "border-style: " 
   <> style <> ";\n}"
 
-genBorderStylesCss :: Maybe Breakpoint -> [Style] -> T.Text
-genBorderStylesCss bp = foldl (\acc x -> acc <> "\n" <> (genBrStyleRule x bp)) ""
+genBorderStylesCss :: Maybe Breakpoint -> T.Text
+genBorderStylesCss bp = foldl (\acc x -> acc <> "\n" <> (genBrStyleRule x bp)) "" styles
 
 --genBrStyleBreakpointCss :: [Float] -> Maybe Breakpoint -> T.Text

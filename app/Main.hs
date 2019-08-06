@@ -8,6 +8,7 @@ import Data.Typeable
 import Data.Aeson (encode, eitherDecode)
 import Data.Aeson.Types
 import Parser
+import Utility (createBPBlockStart, createBPBlockEnd)
 import BorderStyles (genBrStyleRule,  genBorderStylesCss)
 import Variables (genRootRule, genColorVarDeclarations)
 import BorderWidths (genBWCSS)
@@ -39,19 +40,11 @@ main = do
         Left err -> fail err
         Right obj -> do
             let bps = breakpoints obj
-            let colorsL = parseColors obj
-            let colorDeclarations = genColorDeclararions $ colorsL
-            let opacityDeclarations = genOpacityRules $ opacity obj
-            let dt = filter notNull [genColorVarDeclarations colorsL]
-            let bgRules = generateBgRules colorsL
-            let colorDecs = genRootRule dt
-            let brClrDecs = genBrClrRules colorsL
-            let bw = genBWCSS (borderWidths obj) bps
-            writeCssChunks [
-                  colorDecs
-                , bgRules
-                , colorDeclarations
-                , opacityDeclarations
-                , brClrDecs
-                , bw
-                ] "./dist/main.css"
+            let bpcss = foldl (\acc bp -> acc 
+                        <> "\n\n"
+                        <> (createBPBlockStart bp)
+                        <> (genBorderStylesCss bp)
+                        <> (createBPBlockEnd bp))
+                        "" 
+                        bps
+            putStrLn $ T.unpack bpcss
