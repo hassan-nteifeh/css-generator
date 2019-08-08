@@ -1,13 +1,12 @@
 {-# LANGUAGE DeriveGeneric,  OverloadedStrings #-}
 
-module BorderWidths where
+module Borders.BorderWidths where
 
 import qualified Data.Text as T
 import Numeric (showFFloat)
 import Types
 import Data.List
 import Utility (decInd)
-
 
 isInt :: (RealFrac a) => a -> Bool
 isInt x = x == fromInteger (round x)

@@ -9,10 +9,10 @@ import Data.Aeson (encode, eitherDecode)
 import Data.Aeson.Types
 import Parser
 import Utility (createBPBlockStart, createBPBlockEnd)
-import BorderStyles (genBrStyleRule,  genBorderStylesCss)
+import Borders.BorderStyles (genBrStyleRule,  genBorderStylesCss)
+import Borders.BorderWidths (genBorderWidthsCss)
+import Borders.BorderColors (genBorderColorsCss)
 import Variables (genRootRule, genColorVarDeclarations)
-import BorderWidths (genBorderWidthsCss)
-import BorderColors (genBorderColorsCss)
 import Opacity (genOpacityCss)
 import Colors (genColorsCss)
 import qualified Data.Text as T

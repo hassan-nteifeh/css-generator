@@ -1,5 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
-module BorderStyles where
+
+module Borders.BorderStyles where
 
 import qualified Data.Text as T
 import Types
